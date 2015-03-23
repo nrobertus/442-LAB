@@ -116,7 +116,7 @@ timesLeft.append([ 0.54000, 1.30000, 1.56000, 2.08000, 2.52000, 3.42000])
 keysLeft.append([ [ -0.24435, [ 3, -0.18000, 0.00000], [ 3, 0.25333, 0.00000]], [ -0.23935, [ 3, -0.25333, -0.00500], [ 3, 0.08667, 0.00171]], [ -0.22094, [ 3, -0.08667, -0.00409], [ 3, 0.17333, 0.00818]], [ -0.20253, [ 3, -0.17333, -0.00554], [ 3, 0.14667, 0.00469]], [ -0.19026, [ 3, -0.14667, -0.01227], [ 3, 0.30000, 0.02510]], [ 0.12736, [ 3, -0.30000, 0.00000], [ 3, 0.00000, 0.00000]]])
 
 #Connect to the robot
-IP = "169.254.238.191"
+IP = "169.254.154.187"
 PORT = 9559
 
 ##################################################
@@ -160,19 +160,9 @@ sat2 = 200
 val1 = 220
 val2 = 325
 
-hbook1 = 0
-hbook2 = 90
-sbook1 = 130
-sbook2 = 180
-vbook1 = 0
-vbook2 = 60
-
 # define winRange of color BGR
 lower = np.array([hue1,sat1,val1])
 upper = np.array([hue2,sat2,val2])
-
-lowerbook = np.array([hbook1,sbook1,vbook1])
-upperbook = np.array([hbook2,sbook2,vbook2])
 
 ##################################################
 ########### MOVEMENT VARIABLES ###################
@@ -197,13 +187,14 @@ up = [6, 10, 4, 7]
 ### vals are xLow Down, xHigh Down, yLow Down, yHigh Down
 down = [6, 9, 4, 6]
 
+### Movement for side kick
+### vals are xLow Side, xHigh Side, yLow Side, yHigh Side
+side = [6, 10, 3, 8]
+
 # pitch radians winRange -0.6720 (up) to 0.5139 (down)
 headPitch = 0
 # yaw radians winRange -2.0875 (right) to 2.0875 (left)
 headYaw = 0
-
-# Dribble count
-dribble = 0
 
 ##################################################
 ############## LED INITILIZATION #################
@@ -250,19 +241,19 @@ cnt = init_frame[0]
 #### speech and posture init
 tts.setVolume(.2)
 tts.say("Initiating")
-#postureProxy.goToPosture("Crouch", 0.8)
-#ostureProxy.goToPosture("StandInit", 0.8)
-motionProxy.setAngles(["HeadYaw", "HeadPitch"],[0.0, 0.5], 0.2)
+postureProxy.goToPosture("Crouch", 0.8)
+postureProxy.goToPosture("StandInit", 0.8)
+motionProxy.setAngles(["HeadYaw", "HeadPitch"],[-0.1, 0.5], 0.2)
 
 #### Boolean Init
 stillWorking = True
 commandGiven = True
-sidekick = False
+sidekick = True
 t = True
 ##################################################
 ############## PROGRAM ###########################
 ##################################################
-i = 220
+i = 0
 try:
     while(1):
 
@@ -275,7 +266,7 @@ try:
         # Change capture to numpy for ez edit
         frame = np.array(im)
         
-        #HSV Stuff for ball
+        #HSV Stuff
         hsvImg = cv.CreateImage(cv.GetSize(cv.fromarray(frame)), 8, 3)
         cv.CvtColor(cv.fromarray(frame), hsvImg, cv.CV_BGR2HSV)
         hsvThresh = cv.CreateImage(cv.GetSize(hsvImg), 8, 1)
@@ -283,19 +274,6 @@ try:
 
         moments = cv.Moments(cv.GetMat(hsvThresh), 0)
         area = cv.GetCentralMoment(moments, 0, 0)
-
-        #hsv stuff for book
-        book = cv.CreateImage(cv.GetSize(cv.fromarray(frame)), 8, 3)
-        cv.CvtColor(cv.fromarray(frame), book, cv.CV_BGR2HSV)
-        bookThresh = cv.CreateImage(cv.GetSize(book), 8, 1)
-        cv.InRangeS(book, lowerbook, upperbook, bookThresh)
-
-        momentsbook = cv.Moments(cv.GetMat(bookThresh), 0)
-        areabook = cv.GetCentralMoment(momentsbook, 0, 0)
-
-        if (areabook > 1):
-            xbook = int(cv.GetSpatialMoment(momentsbook, 1, 0) / areabook)/40
-            ybook = int(cv.GetSpatialMoment(momentsbook, 0, 1) / areabook)/40
 
         xPrev = xTracker
         yPrev = yTracker
@@ -320,117 +298,112 @@ try:
                 led.off('rGroup')
 
         #convert from BGR to RGB
-        one = 26
+        one = 28
         two = one + 10
-        three = 58
-        four = 120
+        three = 60
         regular = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+        if (i < one):
+        	i += 1
+        	motionProxy.setWalkTargetVelocity(0, 1, 0, .5)
+        elif((i >= one) & (i < two)):
+        	i += 1
+        	motionProxy.setWalkTargetVelocity(0, 0, 0, 0)
+        elif((i >= two) & (i < three)):
+        	i += 1
+        	motionProxy.setWalkTargetVelocity(1, 0, 0, .5)
+        elif(i == three):
+            motionProxy.setWalkTargetVelocity(0, 0, 0, 0)
+        	##################################################
+            ############## Setup for side kick ###############
+            ##################################################
+            # Get to a stable posture first
+            postureProxy.goToPosture("StandInit", 0.8)
+            #wait a second to gain composure
+            time2.sleep(1)
+            #then kick
+            # Activate Whole Body Balancer
+            isEnabled  = True
+            motionProxy.wbEnable(isEnabled)
 
-        if not (sidekick):
-        	seconds = 10
-	        if (i < one):
-	        	i += 1
-	        	motionProxy.setWalkTargetVelocity(0, 1, 0, .5)
-	        elif((i >= one) & (i < two)):
-	        	i += 1
-	        	motionProxy.setWalkTargetVelocity(0, 0, 0, 0)
-	        elif((i >= two) & (i < three)):
-	        	i += 1
-	        	motionProxy.setWalkTargetVelocity(1, 0, -.07, .5)
-	        elif(i == three):
-	            motionProxy.setWalkTargetVelocity(0, 0, 0, 0)
-	        	##################################################
-	            ############## Setup for side kick ###############
-	            ##################################################
-	            # Get to a stable posture first
-	            postureProxy.goToPosture("StandInit", 0.8)
-	            #wait a second to gain composure
-	            time2.sleep(1)
-	            #then kick
-	            # Activate Whole Body Balancer
-	            isEnabled  = True
-	            motionProxy.wbEnable(isEnabled)
+            # Legs are constrained fixed
+            stateName  = "Fixed"
+            supportLeg = "Legs"
+            motionProxy.wbFootState(stateName, supportLeg)
 
-	            # Legs are constrained fixed
-	            stateName  = "Fixed"
-	            supportLeg = "Legs"
-	            motionProxy.wbFootState(stateName, supportLeg)
+            # Motion of the RLeg and LLeg
+            dx      = 0.0                 # translation axis X (meters)
+            dy      = 0.2                   # translation axis Y (meters)
+            dz      = 0.01                 # translation axis Z (meters)
 
-	            # Motion of the RLeg and LLeg
-	            dx      = 0.0                 # translation axis X (meters)
-	            dy      = 0.2                   # translation axis Y (meters)
-	            dz      = 0.01                 # translation axis Z (meters)
-
-	            dwx     = 10.0*math.pi/180.0     # rotation axis X (radian)
-	            dwy     = 0.0                   # rotation axis Y (radian) Original: 5.0*math.pi/180.0
-	            dwz     = 0.0
+            dwx     = 10.0*math.pi/180.0     # rotation axis X (radian)
+            dwy     = 0.0                   # rotation axis Y (radian) Original: 5.0*math.pi/180.0
+            dwz     = 0.0
 
 
-	            times   = [1.3, 1.4, 1.5]
-	            isAbsolute = False
+            times   = [1.3, 1.4, 1.5]
+            isAbsolute = False
 
-	            targetList = [
-	              [0.0, -dy, dz, -dwx, 0.0, 0.0],
-	              [dx, -dy, dz, -dwx, dwy, dwz],
-	              [0.0, -0.07, 0.0, 0.0, 0.0, 0.0]]
+            targetList = [
+              [0.0, -dy, dz, -dwx, 0.0, 0.0],
+              [dx, -dy, dz, -dwx, dwy, dwz],
+              [0.0, -0.07, 0.0, 0.0, 0.0, 0.0]]
 
-	            
-	            ##################################################
-	            ############## Left Leg Balance ##################
-	            ##################################################
-	            # Constraint Balance Motion
-	            isEnable   = True
-	            supportLeg = "Legs"
-	            motionProxy.wbEnableBalanceConstraint(isEnable, supportLeg)
+            
+            ##################################################
+            ############## Left Leg Balance ##################
+            ##################################################
+            # Constraint Balance Motion
+            isEnable   = True
+            supportLeg = "Legs"
+            motionProxy.wbEnableBalanceConstraint(isEnable, supportLeg)
 
-	            # Com go to LLeg
-	            supportLeg = "LLeg"
-	            duration   = 2.0
-	            motionProxy.wbGoToBalance(supportLeg, duration)
+            # Com go to LLeg
+            supportLeg = "LLeg"
+            duration   = 2.0
+            motionProxy.wbGoToBalance(supportLeg, duration)
 
-	            # RLeg is free
-	            stateName  = "Free"
-	            supportLeg = "RLeg"
-	            motionProxy.wbFootState(stateName, supportLeg)
+            # RLeg is free
+            stateName  = "Free"
+            supportLeg = "RLeg"
+            motionProxy.wbFootState(stateName, supportLeg)
 
-	            # RLeg is optimized
-	            effectorName = "RLeg"
-	            axisMask     = 63
-	            space        = motion.FRAME_ROBOT
+            # RLeg is optimized
+            effectorName = "RLeg"
+            axisMask     = 63
+            space        = motion.FRAME_ROBOT
 
-	            ##################################################
-	            ############## Right Leg Kick ####################
-	            ##################################################
-	            ##### This does the right leg kick
-	            motionProxy.positionInterpolation(effectorName, space, targetList,
-	                                         axisMask, times, isAbsolute)
-
-
-	            ##################################################
-	            ############## Clean Up Stuff ####################
-	            ##################################################
-	            time2.sleep(1.0)
-
-	            # Deactivate Head tracking
-	            i += 1
-	            isEnabled    = False
-	            motionProxy.wbEnable(isEnabled)
-
-	            print "side kick"
-	        elif ((i > three) & (i < four)):
-	        	i += 1
-	        	motionProxy.setWalkTargetVelocity(-.7, -1, 0, 1)
-	        elif(i == four):
-	        	i += 1
-	        	motionProxy.setAngles(["HeadYaw", "HeadPitch"],[0.0, 0.0], 0.2)
-	        	motionProxy.setWalkTargetVelocity(0, 0, 0, 0)
-	        	sidekick = True
+            ##################################################
+            ############## Right Leg Kick ####################
+            ##################################################
+            ##### This does the right leg kick
+            motionProxy.positionInterpolation(effectorName, space, targetList,
+                                         axisMask, times, isAbsolute)
 
 
+            ##################################################
+            ############## Clean Up Stuff ####################
+            ##################################################
+            time2.sleep(1.0)
+
+            # Deactivate Head tracking
+            i += 1
+            isEnabled    = False
+            motionProxy.wbEnable(isEnabled)
+            sidekick = False
+
+            print "side kick"
+        elif ((i > three) & (i < 125)):
+        	i += 1
+        	motionProxy.setWalkTargetVelocity(-.8, -1, .1, 1)
+        elif(i == 125):
+        	i += 1
+        	motionProxy.setWalkTargetVelocity(0, 0, 0, 0)
+        	break
+        seconds = 10
         ##################################################
         ##### Main Movement Conditionals #################
         ##################################################
-        if((sidekick)&(seconds == 0)&(commandGiven)&(stillWorking)):
+        if((seconds == 0)&(commandGiven)&(stillWorking)):
 
             ## If ball is found
             if((area > 40000)&(headYaw == 0)):
@@ -439,8 +412,133 @@ try:
                 print "x: ", x
                 print "y: ", y
 
+                ###### LOOKING UP CONDITIONALS
+                if(sidekick):
+                    commandGiven = False
+                    
+                    #### If the ball is at the top of the screen
+                    if((y >= winRange[2]) & (y < side[2])):
 
-                if(headPitch == 0):
+                        if((x >= winRange[0]) & (x < side[0])): # STRAFE LEFT FAST
+                            motionProxy.setWalkTargetVelocity(0, 1, 0, 0.8)
+                            print "strafe left fast"
+
+                        elif((x >= side[0]) & (x <= side[1])): # STRAFE LEFT SLOW
+                            motionProxy.setWalkTargetVelocity(0, 1, 0, 0.3)
+                            print "strafe left slow"
+
+                        elif((x > side[1]) & (x <= winRange[1])): # FORWARD FAST
+                            motionProxy.setWalkTargetVelocity(1, 0, 0, 0.8)
+                            print "forward fast"
+
+                    #### If the ball is at the middle of the screen
+                    elif((y >= side[2]) & (y <= side[3])):
+
+                        if((x >= winRange[0]) & (x < side[0])): # STRAFE LEFT FAST
+                            motionProxy.setWalkTargetVelocity(0, 1, 0, 0.5)
+                            print "strafe left fast"
+
+                        elif((x >= side[0] )& (x <= side[1])): # STRAFE LEFT SLOW
+                            motionProxy.setWalkTargetVelocity(0, 1, 0, 0.3)
+                            print "strafe left slow"
+
+                        elif((x > side[1]) & (x <= winRange[1])): # FORWARD SLOW
+                            motionProxy.setWalkTargetVelocity(0.5, 0, 0, 0.1)
+                            print "forward slow"
+
+                    #### If the ball is at the bottom of the screen
+                    elif((y > side[3]) & (y <= winRange[3])):
+
+                        if((x >= winRange[0]) & (x < side[0])): # BACK UP SLOW
+                            motionProxy.setWalkTargetVelocity(-1, 0, 0, 0.5)
+                            print "back up slow"
+
+                        elif((x >= side[0]) & (x <= side[1])): # BACK UP SLOW
+                            motionProxy.setWalkTargetVelocity(-1, 0, 0, 0.5)
+                            print "back up slow"
+
+                        elif((x > side[1]) & (x <= winRange[1])): # SIDE KICK
+
+                            ##################################################
+                            ############## Setup for side kick ###############
+                            ##################################################
+                            motionProxy.setWalkTargetVelocity(0, 1, 0, 0.3)
+                            # Get to a stable posture first
+                            postureProxy.goToPosture("StandInit", 0.8)
+                                #wait a second to gain composure
+                            time2.sleep(1)
+                            #then kick
+                            # Activate Whole Body Balancer
+                            isEnabled  = True
+                            motionProxy.wbEnable(isEnabled)
+
+                            # Legs are constrained fixed
+                            stateName  = "Fixed"
+                            supportLeg = "Legs"
+                            motionProxy.wbFootState(stateName, supportLeg)
+
+                            # Motion of the RLeg and LLeg
+                            dx      = 0.0                 # translation axis X (meters)
+                            dy      = 0.1                   # translation axis Y (meters)
+                            dz      = 0.01                 # translation axis Z (meters)
+
+                            dwx     = 5.0*math.pi/180.0     # rotation axis X (radian)
+                            dwy     = 0.0                   # rotation axis Y (radian) Original: 5.0*math.pi/180.0
+                            dwz     = 0.0
+
+
+                            times   = [.8, .9, 1.0]
+                            isAbsolute = False
+
+                            targetList = [
+                              [0.0, -dy, 0.0, 0.0, 0.0, 0.0],
+                              [dx, -dy, dz, -dwx, dwy, dwz],
+                              [0.0, -0.07, 0.0, 0.0, 0.0, 0.0]]
+
+                            
+                            ##################################################
+                            ############## Left Leg Balance ##################
+                            ##################################################
+                            # Constraint Balance Motion
+                            isEnable   = True
+                            supportLeg = "Legs"
+                            motionProxy.wbEnableBalanceConstraint(isEnable, supportLeg)
+
+                            # Com go to LLeg
+                            supportLeg = "LLeg"
+                            duration   = 2.0
+                            motionProxy.wbGoToBalance(supportLeg, duration)
+
+                            # RLeg is free
+                            stateName  = "Free"
+                            supportLeg = "RLeg"
+                            motionProxy.wbFootState(stateName, supportLeg)
+
+                            # RLeg is optimized
+                            effectorName = "RLeg"
+                            axisMask     = 63
+                            space        = motion.FRAME_ROBOT
+
+                            ##################################################
+                            ############## Right Leg Kick ####################
+                            ##################################################
+                            ##### This does the right leg kick
+                            motionProxy.positionInterpolation(effectorName, space, targetList,
+                                                         axisMask, times, isAbsolute)
+
+
+                            ##################################################
+                            ############## Clean Up Stuff ####################
+                            ##################################################
+                            time2.sleep(1.0)
+
+                            # Deactivate Head tracking
+                            isEnabled    = False
+                            motionProxy.wbEnable(isEnabled)
+                            sidekick = False
+                            print "side kick"
+
+                elif(headPitch == 0):
                     commandGiven = False
                     
                     #### If the ball is at the top of the screen
@@ -534,20 +632,14 @@ try:
                             print "rightFast"
 
                         elif((x >= down[0]) & (x <= down[1])): # KICK / LOOK DOWN
-                        	if (dribble < 2):
-	                        	motionProxy.setWalkTargetVelocity(0.8, 0, 0, 0.2)
-	                        	dribble += 1
-	                        	print "dribble # ", dribble
-
-                        	elif (dribble == 2):
-	                            headPitch = 0
-	                            stillWorking = False
-	                            postureProxy.goToPosture("StandInit", 0.8)
-	                            time2.sleep(1)
-	                            motionProxy.angleInterpolationBezier(namesLeft, timesLeft, keysLeft)
-	                            tts.say("Goal")
-	                            print "kick"
-	                            break
+                            headPitch = 0
+                            stillWorking = False
+                            postureProxy.goToPosture("StandInit", 0.8)
+                            time2.sleep(1)
+                            motionProxy.angleInterpolationBezier(namesLeft, timesLeft, keysLeft)
+                            tts.say("Finished")
+                            print "kick"
+                            break
 
             # Turn Left toward ball if it is found
             elif((area > 40000)&(headYaw == 1)):
@@ -590,10 +682,6 @@ try:
         cv2.circle(regular, (xTracker*40, yTracker*40), 10, 255, 5, 1, 0)
         cv.ShowImage('thresh', hsvThresh)
         cv2.imshow('regular', regular)
-
-        # book image
-        cv2.circle(regular, (xbook*40, ybook*40), 10, 255, 5, 1, 0)
-        cv2.imshow('book', bookThresh)
         
         
         # exit code
