@@ -1,0 +1,65 @@
+---------------------HOW TO CREATE AN OPENCV PROJECT-----------
+----------------------------------------­-WINDOWS 8.1---------------------------------
+----------------------------------------­---64 Bit OS--------------------------------------­-
+---------------------------------------O­PENCV 2.4.10---------------------------------
+------------------------------------VISU­AL STUDIO 2013---------------------------
+
+1) Download the latest version of OPENCV from sourceforge.net
+
+2) Save the file create the folder OpenCV2410 in C drive
+
+3) Extract the files to 
+
+3.1) C:\OpenCV2410\
+
+4) Download the latest free version of Visual Studio
+
+5) Save file and run the .exe file
+
+6) Open Visual Studio and start a new project
+
+7) Create a Visual C++ Win32 Console Application
+
+7.1) empty project
+
+8) Properties
+
+8.1) Change from Win32 to x64 using Configuration Manager and copy 
+
+settings from Win32
+
+8.2) Make sure you are changing properties for "All Configurations"
+
+8.3) C/C++ -- General -- Additional Include Directories C:\OpenCV2410\opencv\build\include C:\OpenCV2410\opencv\build\include\openc­v C:\OpenCV2410\opencv\build\include\openc­v2 8.4) Linker -- General -- Additional Library Directories
+
+C:\OpenCV2410\opencv\build\x64\vc12\lib
+
+8.5) Find all libraries
+
+C:\OpenCV2410\opencv\build\x64\vc12\lib
+
+8.5) Linker -- Input -- Additional Dependencies (all ending with d)
+
+opencv_calib3d2410d.lib
+opencv_contrib2410d.lib
+opencv_core2410d.lib
+opencv_features2d2410d.lib
+opencv_flann2410d.lib
+opencv_gpu2410d.lib
+opencv_highgui2410d.lib
+opencv_imgproc2410d.lib
+opencv_legacy2410d.lib
+opencv_ml2410d.lib
+opencv_nonfree2410d.lib
+opencv_objdetect2410d.lib
+opencv_ocl2410d.lib
+opencv_photo2410d.lib
+opencv_stitching2410d.lib
+opencv_superres2410d.lib
+opencv_ts2410d.lib
+opencv_video2410d.lib
+opencv_videostab2410d.lib
+
+9) Add the opencv path to the system environment
+
+C:\OpenCV2410\opencv\build\x64\vc12\bin
