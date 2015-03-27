@@ -79,6 +79,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 	cv::namedWindow("OpenCV", 1);
 	cv::Mat frame = cv::Mat(cv::Size(320, 240), CV_8UC3);
+	cv::Mat copy = cv::Mat(cv::Size(320, 240), CV_8UC3);
 	//cv::Mat bw = cv::Mat(cv::Size(320,240), CV_16UC1);
 	cv::Mat bw;
 	while (1)
@@ -86,19 +87,27 @@ int _tmain(int argc, _TCHAR* argv[])
 		color.readFrame(&pFrame);
 		depth.readFrame(&dep);
 		openni::RGB888Pixel *pColor = (openni::RGB888Pixel *) pFrame.getData();
-		openni::DepthPixel* pDepth = (openni::DepthPixel *) pFrame.getData();
+		openni::DepthPixel* pDepth = (openni::DepthPixel *) dep.getData();
 
 		for (int i = 0; i<frame.rows; i++)
 		{
 			for (int j = 0; j<frame.cols; j++)
 			{
+				openni::DepthPixel depthpix = pDepth[frame.cols*i + j];
 				openni::RGB888Pixel pix = pColor[frame.cols*i + j];
-				frame.at<cv::Vec3b>(i, j) = cv::Vec3b(pix.r, pix.g, pix.b);
-				bw = cv::Mat(cv::Size(320, 240), CV_16UC1, (void*)pDepth);
+				if (depthpix >= 1500 && depthpix < 2500){
+					frame.at<cv::Vec3b>(i, j) = cv::Vec3b(pix.b, pix.g, pix.r);
+				}
+				else{
+					frame.at<cv::Vec3b>(i, j) = cv::Vec3b(0, 0, 0);
+				}
+				//openni::RGB888Pixel pix = pColor[frame.cols*i + j];
+				//frame.at<cv::Vec3b>(i, j) = cv::Vec3b(pix.r, pix.g, pix.b);
+				//bw = cv::Mat(cv::Size(320, 240), CV_16UC1, (void*)pDepth);
 			}
 		}
 
-		cv::imshow("depth", bw);
+		cv::imshow("depth", frame);
 		c = cv::waitKey(10);
 		if (c == 27)
 			break;
