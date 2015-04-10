@@ -33,16 +33,19 @@ C:\OpenCV2410\opencv\build\include
 C:\OpenCV2410\opencv\build\include\openc­v 
 C:\OpenCV2410\opencv\build\include\openc­v2
 C:\Program Files (x86)\OpenNI2\Include
+C:\Program Files (x86)\PrimeSense\NiTE2\Include
 
 8.4) Linker -- General -- Additional Library Directories
 
-C:\OpenCV2410\opencv\build\x64\vc12\lib
+C:\OpenCV2410\opencv\build\x86\vc12\lib
 C:\Program Files\OpenNI2\Lib
+C:\Program Files (x86)\PrimeSense\NiTE2\Lib
 
 8.5) Find all libraries
 
 C:\OpenCV2410\opencv\build\x86\vc12\lib
 C:\Program Files\OpenNI2\Lib
+C:\Program Files (x86)\PrimeSense\NiTE2\Lib
 
 8.5) Linker -- Input -- Additional Dependencies (all ending with d)
 
@@ -66,6 +69,7 @@ opencv_ts2410d.lib
 opencv_video2410d.lib
 opencv_videostab2410d.lib
 OpenNI2.lib
+NiTE2.lib
 
 9) Add the opencv path to the system environment
 
