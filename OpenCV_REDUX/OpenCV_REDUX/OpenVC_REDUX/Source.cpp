@@ -10,6 +10,7 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include "NiTE.h"
 
+
 /*******************************************************************************
 *                                                                              *
 *   PrimeSense NiTE 2.0 - Simple Skeleton Sample                               *
@@ -163,7 +164,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	cv::Mat bw = cv::Mat(cv::Size(320,240), CV_16UC1);
 	// min and max vals for z range
 	int minZ = 0;
-	int maxZ = 5000;
+	int maxZ = 10000;
 
 	// scale for gradiant
 	float scaleZ = (255.0 / float(maxZ));
@@ -202,6 +203,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			printf("depthOne %d\ndepthTwo %d\ndifference %d\n\n", depthOne, depthTwo, difference);
 		}
 		*/
+
 		// Put all of the mat painting in this double for loop
 		for (int i = 0; i<frame.rows; i++)
 		{
@@ -278,14 +280,13 @@ int _tmain(int argc, _TCHAR* argv[])
 				const nite::SkeletonJoint& head = user.getSkeleton().getJoint(nite::JOINT_HEAD);
 				if (head.getPositionConfidence() > .5)
 					printf("%d. (%5.2f, %5.2f, %5.2f)\n", user.getId(), ((1280 / 2) + head.getPosition().x)*.25, ((1024 / 2) + head.getPosition().y)*.234, head.getPosition().z);
-					cv::circle(frame, cv::Point((int)((1280/2)+head.getPosition().x)*0.25, 240-((int)((1024/2)+head.getPosition().y))*0.234), 10, (255, 0, 0), 1, 8, 0);
+					cv::circle(frame, cv::Point((int)((1280/2)+head.getPosition().x)*0.23 + 10, 240-((int)((1024/2)+head.getPosition().y))*0.234 + 10), 20, (0, 0, 255), -1, 8, 0);
 			}
 		}
 		
 		// display painted images
 		cv::imshow("depth", frame);
-		cv::imshow("color", copy);
-		cv::imshow("niteFrame", niteRc);
+		//cv::imshow("color", copy);
 
 		// Code for exit
 		c = cv::waitKey(10);
