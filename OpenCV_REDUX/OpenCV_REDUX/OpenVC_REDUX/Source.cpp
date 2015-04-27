@@ -9,7 +9,7 @@
 #include <opencv2/highgui/highgui.hpp> 
 #include <opencv2/imgproc/imgproc.hpp>
 #include "NiTE.h"
-
+#include "C:/Program Files (x86)/PrimeSense/NiTE2/Samples/Common/NiteSampleUtilities.h"
 
 /*******************************************************************************
 *                                                                              *
@@ -18,9 +18,6 @@
 *                                                                              *
 *******************************************************************************/
 
-#include "NiTE.h"
-
-#include "C:/Program Files (x86)/PrimeSense/NiTE2/Samples/Common/NiteSampleUtilities.h"
 
 #define MAX_USERS 10
 bool g_visibleUsers[MAX_USERS] = { false };
@@ -173,7 +170,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	int counter = 0;
 
 
-	while (!wasKeyboardHit())
+	while (true)//!wasKeyboardHit()
 	{
 		
 		/*
@@ -186,23 +183,6 @@ int _tmain(int argc, _TCHAR* argv[])
 		openni::DepthPixel* pDepth = (openni::DepthPixel *) dep.getData();
 
 
-		/* PRINT OFF DEPTH OF point and middle bottom of screen
-
-		// Code for printing off depth at 20 and 40 pixles up from the bottom of the image
-		// All of this data varies too much to be of any real value to us as far as i can tell
-		counter++;
-		// This will keep it from printing off too much data
-		if (counter == 10){
-			counter = 0;
-			// get depth at 20 pixles up
-			openni::DepthPixel depthOne = pDepth[(frame.cols * 200) + 120];
-			// get depth at 40 pixles up
-			openni::DepthPixel depthTwo = pDepth[(frame.cols * 220) + 120];
-			// get difference
-			int difference = depthOne - depthTwo;
-			printf("depthOne %d\ndepthTwo %d\ndifference %d\n\n", depthOne, depthTwo, difference);
-		}
-		*/
 
 		// Put all of the mat painting in this double for loop
 		for (int i = 0; i<frame.rows; i++)

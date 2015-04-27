@@ -8,6 +8,7 @@
 
 #define width 320
 #define height 240
+#define LINE_THICKNESS 10
 
 cv::Mat frame;
 cv::Mat newFrame;
@@ -148,7 +149,7 @@ void SwapHeads(nite::UserTracker* pUserTracker, const nite::Array<nite::UserData
 
 }
 /* from sample code */
-void DrawLimb(nite::UserTracker* pUserTracker, const nite::SkeletonJoint& joint1, const nite::SkeletonJoint& joint2, int color, int user)
+void DrawLimb(nite::UserTracker* pUserTracker, const nite::SkeletonJoint& joint1, const nite::SkeletonJoint& joint2, int thickness, int user)
 {
 	printf("userID: %d\n", user);
 	float coordinates[6] = { 0 };
@@ -157,10 +158,13 @@ void DrawLimb(nite::UserTracker* pUserTracker, const nite::SkeletonJoint& joint1
 	if (joint1.getPositionConfidence() > 0.5f && joint2.getPositionConfidence() > 0.5f)
 	{
 		if (user == 1){
-			cv::line(newFrame, cv::Point((int)coordinates[0], (int)coordinates[1]), cv::Point((int)coordinates[3], (int)coordinates[4]), cv::Scalar(0, 0, 255), color);
+			cv::line(newFrame, cv::Point((int)coordinates[0], (int)coordinates[1]), cv::Point((int)coordinates[3], (int)coordinates[4]), cv::Scalar(0, 0, 255), thickness);
+		}
+		else if(user == 2){
+			cv::line(newFrame, cv::Point((int)coordinates[0], (int)coordinates[1]), cv::Point((int)coordinates[3], (int)coordinates[4]), cv::Scalar(0, 255, 0), thickness);
 		}
 		else{
-			cv::line(newFrame, cv::Point((int)coordinates[0], (int)coordinates[1]), cv::Point((int)coordinates[3], (int)coordinates[4]), cv::Scalar(0, 255, 0), color);
+			cv::line(newFrame, cv::Point((int)coordinates[0], (int)coordinates[1]), cv::Point((int)coordinates[3], (int)coordinates[4]), cv::Scalar(120, 120, 120), thickness);
 		}
 		
 	}
@@ -168,33 +172,33 @@ void DrawLimb(nite::UserTracker* pUserTracker, const nite::SkeletonJoint& joint1
 /* from sample code */
 void DrawSkeleton(nite::UserTracker* pUserTracker, const nite::UserData& userData)
 {
-	//DrawLimb(pUserTracker, userData.getSkeleton().getJoint(nite::JOINT_HEAD), userData.getSkeleton().getJoint(nite::JOINT_NECK), 15, userData.getId());
+	//DrawLimb(pUserTracker, userData.getSkeleton().getJoint(nite::JOINT_HEAD), userData.getSkeleton().getJoint(nite::JOINT_NECK), LINE_THICKNESS, userData.getId());
 
-	DrawLimb(pUserTracker, userData.getSkeleton().getJoint(nite::JOINT_LEFT_SHOULDER), userData.getSkeleton().getJoint(nite::JOINT_LEFT_ELBOW), 15, userData.getId());
-	DrawLimb(pUserTracker, userData.getSkeleton().getJoint(nite::JOINT_LEFT_ELBOW), userData.getSkeleton().getJoint(nite::JOINT_LEFT_HAND), 15, userData.getId());
+	DrawLimb(pUserTracker, userData.getSkeleton().getJoint(nite::JOINT_LEFT_SHOULDER), userData.getSkeleton().getJoint(nite::JOINT_LEFT_ELBOW), LINE_THICKNESS, userData.getId());
+	DrawLimb(pUserTracker, userData.getSkeleton().getJoint(nite::JOINT_LEFT_ELBOW), userData.getSkeleton().getJoint(nite::JOINT_LEFT_HAND), LINE_THICKNESS, userData.getId());
 
-	DrawLimb(pUserTracker, userData.getSkeleton().getJoint(nite::JOINT_RIGHT_SHOULDER), userData.getSkeleton().getJoint(nite::JOINT_RIGHT_ELBOW), 15, userData.getId());
-	DrawLimb(pUserTracker, userData.getSkeleton().getJoint(nite::JOINT_RIGHT_ELBOW), userData.getSkeleton().getJoint(nite::JOINT_RIGHT_HAND), 15, userData.getId());
+	DrawLimb(pUserTracker, userData.getSkeleton().getJoint(nite::JOINT_RIGHT_SHOULDER), userData.getSkeleton().getJoint(nite::JOINT_RIGHT_ELBOW), LINE_THICKNESS, userData.getId());
+	DrawLimb(pUserTracker, userData.getSkeleton().getJoint(nite::JOINT_RIGHT_ELBOW), userData.getSkeleton().getJoint(nite::JOINT_RIGHT_HAND), LINE_THICKNESS, userData.getId());
 
-	DrawLimb(pUserTracker, userData.getSkeleton().getJoint(nite::JOINT_LEFT_SHOULDER), userData.getSkeleton().getJoint(nite::JOINT_RIGHT_SHOULDER), 15, userData.getId());
+	DrawLimb(pUserTracker, userData.getSkeleton().getJoint(nite::JOINT_LEFT_SHOULDER), userData.getSkeleton().getJoint(nite::JOINT_RIGHT_SHOULDER), LINE_THICKNESS, userData.getId());
 
-	DrawLimb(pUserTracker, userData.getSkeleton().getJoint(nite::JOINT_LEFT_SHOULDER), userData.getSkeleton().getJoint(nite::JOINT_LEFT_HIP), 15, userData.getId());
-	DrawLimb(pUserTracker, userData.getSkeleton().getJoint(nite::JOINT_RIGHT_SHOULDER), userData.getSkeleton().getJoint(nite::JOINT_RIGHT_HIP), 15, userData.getId());
+	DrawLimb(pUserTracker, userData.getSkeleton().getJoint(nite::JOINT_LEFT_SHOULDER), userData.getSkeleton().getJoint(nite::JOINT_LEFT_HIP), LINE_THICKNESS, userData.getId());
+	DrawLimb(pUserTracker, userData.getSkeleton().getJoint(nite::JOINT_RIGHT_SHOULDER), userData.getSkeleton().getJoint(nite::JOINT_RIGHT_HIP), LINE_THICKNESS, userData.getId());
 
-	DrawLimb(pUserTracker, userData.getSkeleton().getJoint(nite::JOINT_TORSO), userData.getSkeleton().getJoint(nite::JOINT_LEFT_HIP), 15, userData.getId());
-	DrawLimb(pUserTracker, userData.getSkeleton().getJoint(nite::JOINT_TORSO), userData.getSkeleton().getJoint(nite::JOINT_RIGHT_HIP), 15, userData.getId());
+	DrawLimb(pUserTracker, userData.getSkeleton().getJoint(nite::JOINT_TORSO), userData.getSkeleton().getJoint(nite::JOINT_LEFT_HIP), LINE_THICKNESS, userData.getId());
+	DrawLimb(pUserTracker, userData.getSkeleton().getJoint(nite::JOINT_TORSO), userData.getSkeleton().getJoint(nite::JOINT_RIGHT_HIP), LINE_THICKNESS, userData.getId());
 
-	DrawLimb(pUserTracker, userData.getSkeleton().getJoint(nite::JOINT_TORSO), userData.getSkeleton().getJoint(nite::JOINT_LEFT_SHOULDER), 15, userData.getId());
-	DrawLimb(pUserTracker, userData.getSkeleton().getJoint(nite::JOINT_TORSO), userData.getSkeleton().getJoint(nite::JOINT_RIGHT_SHOULDER), 15, userData.getId());
+	DrawLimb(pUserTracker, userData.getSkeleton().getJoint(nite::JOINT_TORSO), userData.getSkeleton().getJoint(nite::JOINT_LEFT_SHOULDER), LINE_THICKNESS, userData.getId());
+	DrawLimb(pUserTracker, userData.getSkeleton().getJoint(nite::JOINT_TORSO), userData.getSkeleton().getJoint(nite::JOINT_RIGHT_SHOULDER), LINE_THICKNESS, userData.getId());
 
-	DrawLimb(pUserTracker, userData.getSkeleton().getJoint(nite::JOINT_LEFT_HIP), userData.getSkeleton().getJoint(nite::JOINT_RIGHT_HIP), 15, userData.getId());
+	DrawLimb(pUserTracker, userData.getSkeleton().getJoint(nite::JOINT_LEFT_HIP), userData.getSkeleton().getJoint(nite::JOINT_RIGHT_HIP), LINE_THICKNESS, userData.getId());
 
 
-	DrawLimb(pUserTracker, userData.getSkeleton().getJoint(nite::JOINT_LEFT_HIP), userData.getSkeleton().getJoint(nite::JOINT_LEFT_KNEE), 15, userData.getId());
-	DrawLimb(pUserTracker, userData.getSkeleton().getJoint(nite::JOINT_LEFT_KNEE), userData.getSkeleton().getJoint(nite::JOINT_LEFT_FOOT), 15, userData.getId());
+	DrawLimb(pUserTracker, userData.getSkeleton().getJoint(nite::JOINT_LEFT_HIP), userData.getSkeleton().getJoint(nite::JOINT_LEFT_KNEE), LINE_THICKNESS, userData.getId());
+	DrawLimb(pUserTracker, userData.getSkeleton().getJoint(nite::JOINT_LEFT_KNEE), userData.getSkeleton().getJoint(nite::JOINT_LEFT_FOOT), LINE_THICKNESS, userData.getId());
 
-	DrawLimb(pUserTracker, userData.getSkeleton().getJoint(nite::JOINT_RIGHT_HIP), userData.getSkeleton().getJoint(nite::JOINT_RIGHT_KNEE), 15, userData.getId());
-	DrawLimb(pUserTracker, userData.getSkeleton().getJoint(nite::JOINT_RIGHT_KNEE), userData.getSkeleton().getJoint(nite::JOINT_RIGHT_FOOT), 15, userData.getId());
+	DrawLimb(pUserTracker, userData.getSkeleton().getJoint(nite::JOINT_RIGHT_HIP), userData.getSkeleton().getJoint(nite::JOINT_RIGHT_KNEE), LINE_THICKNESS, userData.getId());
+	DrawLimb(pUserTracker, userData.getSkeleton().getJoint(nite::JOINT_RIGHT_KNEE), userData.getSkeleton().getJoint(nite::JOINT_RIGHT_FOOT), LINE_THICKNESS, userData.getId());
 }
 
 
