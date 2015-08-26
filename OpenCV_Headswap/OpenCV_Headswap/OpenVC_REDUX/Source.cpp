@@ -15,7 +15,6 @@ cv::Mat newFrame;
 openni::VideoStream depth;
 openni::RGB888Pixel *pColor;
 
-
 void SwapPixels(int x1, int y1, int x2, int y2) {
 	if (x1 < 0 || x1 >= width || y1 < 0 || y1 >= height || x2 < 0 || x2 >= width || y2 < 0 || y2 >= height) {
 		return;
@@ -146,7 +145,6 @@ void SwapHeads(nite::UserTracker* pUserTracker, const nite::Array<nite::UserData
 			currentDepth = pDepth[width*i + j];
 		}
 	}
-
 }
 /* from sample code */
 void DrawLimb(nite::UserTracker* pUserTracker, const nite::SkeletonJoint& joint1, const nite::SkeletonJoint& joint2, int thickness, int user)
@@ -185,11 +183,11 @@ void DrawSkeleton(nite::UserTracker* pUserTracker, const nite::UserData& userDat
 	DrawLimb(pUserTracker, userData.getSkeleton().getJoint(nite::JOINT_LEFT_SHOULDER), userData.getSkeleton().getJoint(nite::JOINT_LEFT_HIP), LINE_THICKNESS, userData.getId());
 	DrawLimb(pUserTracker, userData.getSkeleton().getJoint(nite::JOINT_RIGHT_SHOULDER), userData.getSkeleton().getJoint(nite::JOINT_RIGHT_HIP), LINE_THICKNESS, userData.getId());
 
-	DrawLimb(pUserTracker, userData.getSkeleton().getJoint(nite::JOINT_TORSO), userData.getSkeleton().getJoint(nite::JOINT_LEFT_HIP), LINE_THICKNESS, userData.getId());
-	DrawLimb(pUserTracker, userData.getSkeleton().getJoint(nite::JOINT_TORSO), userData.getSkeleton().getJoint(nite::JOINT_RIGHT_HIP), LINE_THICKNESS, userData.getId());
-
-	DrawLimb(pUserTracker, userData.getSkeleton().getJoint(nite::JOINT_TORSO), userData.getSkeleton().getJoint(nite::JOINT_LEFT_SHOULDER), LINE_THICKNESS, userData.getId());
-	DrawLimb(pUserTracker, userData.getSkeleton().getJoint(nite::JOINT_TORSO), userData.getSkeleton().getJoint(nite::JOINT_RIGHT_SHOULDER), LINE_THICKNESS, userData.getId());
+	//DrawLimb(pUserTracker, userData.getSkeleton().getJoint(nite::JOINT_TORSO), userData.getSkeleton().getJoint(nite::JOINT_LEFT_HIP), LINE_THICKNESS, userData.getId());
+	//DrawLimb(pUserTracker, userData.getSkeleton().getJoint(nite::JOINT_TORSO), userData.getSkeleton().getJoint(nite::JOINT_RIGHT_HIP), LINE_THICKNESS, userData.getId());
+	
+	//DrawLimb(pUserTracker, userData.getSkeleton().getJoint(nite::JOINT_TORSO), userData.getSkeleton().getJoint(nite::JOINT_LEFT_SHOULDER), LINE_THICKNESS, userData.getId());
+	//DrawLimb(pUserTracker, userData.getSkeleton().getJoint(nite::JOINT_TORSO), userData.getSkeleton().getJoint(nite::JOINT_RIGHT_SHOULDER), LINE_THICKNESS, userData.getId());
 
 	DrawLimb(pUserTracker, userData.getSkeleton().getJoint(nite::JOINT_LEFT_HIP), userData.getSkeleton().getJoint(nite::JOINT_RIGHT_HIP), LINE_THICKNESS, userData.getId());
 
@@ -320,7 +318,6 @@ int main(int argc, char* argv[])
 
 	while (1)
 	{
-		
 		nite::Status rc = m_pUserTracker->readFrame(&userTrackerFrame);
 		color.readFrame(&pFrame);
 		depth.readFrame(&dep);
@@ -350,13 +347,10 @@ int main(int argc, char* argv[])
 					if (i == 1) {
 						SwapHeads(m_pUserTracker, users);
 					}
-					DrawSkeleton(m_pUserTracker, user);
-					
+					DrawSkeleton(m_pUserTracker, user);		
 				}
 			}
-
 		}
-
 
 		c = cv::waitKey(10);
 		if (c == 112) {
@@ -365,10 +359,6 @@ int main(int argc, char* argv[])
 				std::cout << "Object " << (y + 1) << " Avg Depth: " << objectDepths[y] << std::endl;
 			}
 		}
-
-
-
-
 
 		cv::imshow("newFrame", newFrame);
 		cv::imshow("depth", frame);

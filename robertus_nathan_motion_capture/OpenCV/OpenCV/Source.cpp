@@ -6,6 +6,9 @@
 #include <opencv2/core/core.hpp> // Basic OpenCV structures (cv::Mat, Scalar)
 #include <opencv2/highgui/highgui.hpp> 
 #include <opencv2/imgproc/imgproc.hpp> 
+#include <string>
+#include <iostream>
+#include <random>
 using namespace cv;
 using namespace std;
 
@@ -43,14 +46,20 @@ int main(int argc, char* argv[])
 		cvtColor(frame, HSV, CV_BGR2HSV);
 		inRange(HSV, hsv_min, hsv_max, threshold);
 		GaussianBlur(threshold, threshold, Size(7, 7), 1.5);
-		Canny(threshold, edges, 10, 350, 3, false);
+		Canny(frame, edges, 10, 350, 3, false);
 
-		imshow("thr", threshold);
-		imshow("original", HSV);
-		imshow("edges", edges);
+		std::mt19937 rng;
+		rng.seed(std::random_device()());
+		std::uniform_int_distribution<std::mt19937::result_type> dist6(1, 6); // distribution in range [1, 6]
 
-		moveWindow("original", 100, 150);
-		moveWindow("thr", 800, 150);
+		std::cout << dist6(rng) << std::endl;
+
+		//imshow("thr", threshold);
+		//imshow("original", HSV);
+		//imshow("edges", edges);
+
+		//moveWindow("original", 100, 150);
+		//moveWindow("thr", 800, 150);
 
 
         waitKey(1);
